@@ -2,7 +2,7 @@
     "name": "thepixelage/craft-fresh",
     "description": "Fresh is a Craft CMS plugin for marking content as new",
     "type": "craft-plugin",
-    "version": "4.0.0-beta.1",
+    "version": "3.0.0",
     "keywords": [
         "craft",
         "cms",
@@ -18,8 +18,7 @@
         }
     ],
     "require": {
-        "php": "^8.0",
-        "craftcms/cms": "^4.0.0-beta",
+        "craftcms/cms": "^3.6.0",
         "ext-json": "*"
     },
     "autoload": {

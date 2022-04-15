@@ -2,8 +2,6 @@
 
 namespace thepixelage\fresh;
 
-use Craft;
-
 /**
  * Class Plugin
  *
@@ -12,10 +10,6 @@ use Craft;
 class Plugin extends \craft\base\Plugin
 {
     public static Plugin $plugin;
-
-    public string $schemaVersion = '1.0.0';
-    public bool $hasCpSettings = true;
-    public bool $hasCpSection = true;
 
     public function init()
     {

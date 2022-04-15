@@ -1,0 +1,8 @@
+{
+    "namespaces": [
+        {
+            "namespace": "fresh",
+            "path": "src/templates"
+        }
+    ]
+}

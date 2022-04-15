@@ -1,8 +1,6 @@
 <?php
 
-namespace thepixelage\fresh;
-
-use Craft;
+namespace thepixelage\markasnew;
 
 /**
  * Class Plugin

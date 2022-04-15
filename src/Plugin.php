@@ -5,7 +5,7 @@ namespace thepixelage\markasnew;
 /**
  * Class Plugin
  *
- * @package thepixelage\fresh
+ * @package thepixelage\markasnew
  */
 class Plugin extends \craft\base\Plugin
 {

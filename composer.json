@@ -1,6 +1,6 @@
 {
-    "name": "thepixelage/craft-fresh",
-    "description": "Fresh is a Craft CMS plugin for marking content as new",
+    "name": "thepixelage/craft-markasnew",
+    "description": "Mark As New is a Craft CMS plugin for marking content as new",
     "type": "craft-plugin",
     "version": "3.0.0",
     "keywords": [
@@ -8,7 +8,7 @@
         "cms",
         "craftcms",
         "craft-plugin",
-        "craft-fresh"
+        "craft-markasnew"
     ],
     "license": "proprietary",
     "authors": [
@@ -23,14 +23,14 @@
     },
     "autoload": {
         "psr-4": {
-          "thepixelage\\fresh\\": "src/"
+          "thepixelage\\markasnew\\": "src/"
         }
     },
     "extra": {
-        "name": "Fresh",
-        "handle": "fresh",
+        "name": "Mark As New",
+        "handle": "markasnew",
         "developer": "ThePixelAge",
         "developerUrl": "https://www.thepixelage.com",
-        "class": "thepixelage\\fresh\\Plugin"
+        "class": "thepixelage\\markasnew\\Plugin"
     }
 }

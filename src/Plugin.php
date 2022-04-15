@@ -1,11 +1,11 @@
 <?php
 
-namespace thepixelage\fresh;
+namespace thepixelage\markasnew;
 
 /**
  * Class Plugin
  *
- * @package thepixelage\fresh
+ * @package thepixelage\markasnew
  */
 class Plugin extends \craft\base\Plugin
 {
@@ -17,5 +17,4 @@ class Plugin extends \craft\base\Plugin
 
         self::$plugin = $this;
     }
-
 }

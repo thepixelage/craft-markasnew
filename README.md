@@ -1,4 +1,4 @@
-# Fresh Plugin for Craft CMS
+# Mark As New Plugin for Craft CMS
 
 ---
 

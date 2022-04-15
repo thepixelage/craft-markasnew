@@ -1,4 +1,4 @@
-# Release Notes for Fresh
+# Release Notes for Mark As New
 
 ## [Unreleased]
 

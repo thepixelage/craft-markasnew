@@ -9,6 +9,7 @@ use craft\base\Model;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\Product;
 use craft\db\Query;
+use craft\elements\conditions\ElementCondition;
 use craft\elements\conditions\entries\EntryCondition;
 use craft\elements\db\ElementQuery;
 use craft\elements\db\EntryQuery;
@@ -264,9 +265,14 @@ class Plugin extends \craft\base\Plugin
     private function registerConditionRules()
     {
         Event::on(
-            EntryCondition::class,
+            ElementCondition::class,
             BaseCondition::EVENT_REGISTER_CONDITION_RULE_TYPES,
             function (RegisterConditionRuleTypesEvent $event) {
+                $condition = $event->sender;
+                if (!in_array(get_class($condition), [EntryCondition::class])) {
+                    return;
+                }
+
                 $ruleTypes = $event->conditionRuleTypes;
                 $ruleTypes[] = MarkedAsNewConditionRule::class;
                 $event->conditionRuleTypes = $ruleTypes;

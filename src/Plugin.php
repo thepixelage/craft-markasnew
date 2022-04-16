@@ -13,10 +13,11 @@ use craft\elements\db\EntryQuery;
 use craft\elements\Entry;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineGqlTypeFieldsEvent;
-use craft\events\DefineHtmlEvent;
 use craft\events\ModelEvent;
 use craft\events\PopulateElementEvent;
+use craft\events\RegisterElementTableAttributesEvent;
 use craft\events\RegisterGqlQueriesEvent;
+use craft\events\SetElementTableAttributeHtmlEvent;
 use craft\gql\TypeManager;
 use craft\gql\types\DateTime;
 use craft\helpers\Cp;
@@ -53,6 +54,7 @@ class Plugin extends \craft\base\Plugin
         $this->registerProductQueryEventHandlers();
         $this->registerGqlTypeFields();
         $this->registerGqlArguments();
+        $this->registerTableAttributes();
     }
 
     private function registerMetaFieldsHtml()
@@ -247,13 +249,40 @@ class Plugin extends \craft\base\Plugin
         );
     }
 
+    private function registerTableAttributes()
+    {
+        Event::on(
+            Entry::class,
+            Element::EVENT_REGISTER_TABLE_ATTRIBUTES,
+            [self::class, 'handleRegisterTableAttributes']
+        );
+
+        Event::on(
+            Entry::class,
+            Element::EVENT_SET_TABLE_ATTRIBUTE_HTML,
+            [self::class, 'handleSetTableAttributeHtml']
+        );
+
+        Event::on(
+            Product::class,
+            Element::EVENT_REGISTER_TABLE_ATTRIBUTES,
+            [self::class, 'handleRegisterTableAttributes']
+        );
+
+        Event::on(
+            Product::class,
+            Element::EVENT_SET_TABLE_ATTRIBUTE_HTML,
+            [self::class, 'handleSetTableAttributeHtml']
+        );
+    }
+
     public static function handleElementQueryBeforePrepare(Event $event)
     {
         /** @var EntryQuery $query */
         $query = $event->sender;
 
         $query->leftJoin(['markasnew_elements' => '{{%markasnew_elements}}'], "[[markasnew_elements.id]] = [[elements.id]]");
-        if (count($query->select) > 1) {
+        if (count($query->select) > 1 || join('', $query->select) != 'COUNT(*)') {
             $query->addSelect(['markasnew_elements.markedNewTillDate']);
         }
 
@@ -274,5 +303,34 @@ class Plugin extends \craft\base\Plugin
     {
         $event->element->markedNewTillDate = DateTimeHelper::toDateTime($event->element->markedNewTillDate);
         $event->element->markedAsNew = $event->element->markedNewTillDate && $event->element->markedNewTillDate >= DateTimeHelper::currentUTCDateTime();
+    }
+
+    public static function handleRegisterTableAttributes(RegisterElementTableAttributesEvent $event)
+    {
+        $event->tableAttributes['markedAsNew'] = [
+            'label' => 'Marked As New',
+        ];
+        $event->tableAttributes['markedNewTillDate'] = [
+            'label' => 'Marked New Till Date',
+        ];
+    }
+
+    public static function handleSetTableAttributeHtml(SetElementTableAttributeHtmlEvent $event)
+    {
+        /** @var Entry $entry */
+        $entry = $event->sender;
+
+        if ($event->attribute == 'markedAsNew') {
+            $event->html = Html::tag('span', '', [
+                'class' => array_filter([
+                    'status',
+                    $entry->markedAsNew ? 'active green' : null,
+                ])
+            ]);
+        }
+
+        if ($event->attribute == 'markedNewTillDate') {
+            $event->html = $entry->markedNewTillDate ? Craft::$app->formatter->asDatetime($entry->markedNewTillDate, 'short') : null;
+        }
     }
 }

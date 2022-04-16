@@ -3,11 +3,13 @@
 namespace thepixelage\markasnew;
 
 use Craft;
+use craft\base\conditions\BaseCondition;
 use craft\base\Element;
 use craft\base\Model;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\Product;
 use craft\db\Query;
+use craft\elements\conditions\entries\EntryCondition;
 use craft\elements\db\ElementQuery;
 use craft\elements\db\EntryQuery;
 use craft\elements\Entry;
@@ -16,6 +18,7 @@ use craft\events\DefineGqlTypeFieldsEvent;
 use craft\events\DefineHtmlEvent;
 use craft\events\ModelEvent;
 use craft\events\PopulateElementEvent;
+use craft\events\RegisterConditionRuleTypesEvent;
 use craft\events\RegisterGqlQueriesEvent;
 use craft\gql\TypeManager;
 use craft\gql\types\DateTime;
@@ -23,11 +26,13 @@ use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\services\Gql;
+use Exception;
 use GraphQL\Type\Definition\Type;
 use thepixelage\markasnew\behaviors\EntryBehavior;
 use thepixelage\markasnew\behaviors\EntryQueryBehavior;
 use thepixelage\markasnew\behaviors\ProductBehavior;
 use thepixelage\markasnew\behaviors\ProductQueryBehavior;
+use thepixelage\markasnew\conditions\MarkedAsNewConditionRule;
 use thepixelage\markasnew\records\MarkAsNew_Elements as MarkAsNew_ElementsRecord;
 use yii\base\Event;
 
@@ -57,6 +62,7 @@ class Plugin extends \craft\base\Plugin
         $this->registerProductQueryEventHandlers();
         $this->registerGqlTypeFields();
         $this->registerGqlArguments();
+        $this->registerConditionRules();
     }
 
     private function registerMetaFieldsHtml()
@@ -255,6 +261,19 @@ class Plugin extends \craft\base\Plugin
         );
     }
 
+    private function registerConditionRules()
+    {
+        Event::on(
+            EntryCondition::class,
+            BaseCondition::EVENT_REGISTER_CONDITION_RULE_TYPES,
+            function (RegisterConditionRuleTypesEvent $event) {
+                $ruleTypes = $event->conditionRuleTypes;
+                $ruleTypes[] = MarkedAsNewConditionRule::class;
+                $event->conditionRuleTypes = $ruleTypes;
+            }
+        );
+    }
+
     public static function handleElementQueryBeforePrepare(Event $event)
     {
         /** @var EntryQuery $query */
@@ -278,6 +297,9 @@ class Plugin extends \craft\base\Plugin
         }
     }
 
+    /**
+     * @throws Exception
+     */
     public static function handleElementQueryAfterPopulateElement(PopulateElementEvent $event)
     {
         $event->element->markedNewTillDate = DateTimeHelper::toDateTime($event->element->markedNewTillDate);

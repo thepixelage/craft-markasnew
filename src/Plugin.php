@@ -12,12 +12,18 @@ use craft\elements\db\ElementQuery;
 use craft\elements\db\EntryQuery;
 use craft\elements\Entry;
 use craft\events\DefineBehaviorsEvent;
+use craft\events\DefineGqlTypeFieldsEvent;
 use craft\events\DefineHtmlEvent;
 use craft\events\ModelEvent;
 use craft\events\PopulateElementEvent;
+use craft\events\RegisterGqlQueriesEvent;
+use craft\gql\TypeManager;
+use craft\gql\types\DateTime;
 use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
+use craft\services\Gql;
+use GraphQL\Type\Definition\Type;
 use thepixelage\markasnew\behaviors\EntryBehavior;
 use thepixelage\markasnew\behaviors\EntryQueryBehavior;
 use thepixelage\markasnew\behaviors\ProductBehavior;
@@ -49,6 +55,8 @@ class Plugin extends \craft\base\Plugin
         $this->registerElementAfterSaveEventHandlers();
         $this->registerEntryQueryEventHandlers();
         $this->registerProductQueryEventHandlers();
+        $this->registerGqlTypeFields();
+        $this->registerGqlArguments();
     }
 
     private function registerMetaFieldsHtml()
@@ -56,7 +64,7 @@ class Plugin extends \craft\base\Plugin
         Event::on(
             Entry::class,
             Element::EVENT_DEFINE_META_FIELDS_HTML,
-            function (DefineHtmlEvent $event) {
+            function(DefineHtmlEvent $event) {
                 /** @var Entry $entry */
                 $entry = $event->sender;
 
@@ -102,7 +110,7 @@ class Plugin extends \craft\base\Plugin
         Event::on(
             EntryQuery::class,
             Query::EVENT_DEFINE_BEHAVIORS,
-            function (DefineBehaviorsEvent $event) {
+            function(DefineBehaviorsEvent $event) {
                 $event->sender->attachBehaviors([
                     EntryQueryBehavior::class,
                 ]);
@@ -112,7 +120,7 @@ class Plugin extends \craft\base\Plugin
         Event::on(
             Entry::class,
             Model::EVENT_DEFINE_BEHAVIORS,
-            function (DefineBehaviorsEvent $event) {
+            function(DefineBehaviorsEvent $event) {
                 $event->sender->attachBehaviors([
                     EntryBehavior::class,
                 ]);
@@ -122,7 +130,7 @@ class Plugin extends \craft\base\Plugin
         Event::on(
             ProductQuery::class,
             Query::EVENT_DEFINE_BEHAVIORS,
-            function (DefineBehaviorsEvent $event) {
+            function(DefineBehaviorsEvent $event) {
                 $event->sender->attachBehaviors([
                     ProductQueryBehavior::class,
                 ]);
@@ -132,7 +140,7 @@ class Plugin extends \craft\base\Plugin
         Event::on(
             Product::class,
             Model::EVENT_DEFINE_BEHAVIORS,
-            function (DefineBehaviorsEvent $event) {
+            function(DefineBehaviorsEvent $event) {
                 $event->sender->attachBehaviors([
                     ProductBehavior::class,
                 ]);
@@ -145,7 +153,7 @@ class Plugin extends \craft\base\Plugin
         Event::on(
             Element::class,
             Element::EVENT_AFTER_SAVE,
-            function (ModelEvent $event) {
+            function(ModelEvent $event) {
                 /** @var Element $element */
                 $element = $event->sender;
 
@@ -198,6 +206,52 @@ class Plugin extends \craft\base\Plugin
             ProductQuery::class,
             ElementQuery::EVENT_AFTER_POPULATE_ELEMENT,
             [self::class, 'handleElementQueryAfterPopulateElement']
+        );
+    }
+
+    private function registerGqlTypeFields()
+    {
+        Event::on(
+            TypeManager::class,
+            TypeManager::EVENT_DEFINE_GQL_TYPE_FIELDS,
+            function(DefineGqlTypeFieldsEvent $event) {
+                if (in_array($event->typeName, ['EntryInterface', 'ProductInterface'])) {
+                    $event->fields['markedAsNew'] = [
+                        'name' => 'markedAsNew',
+                        'type' => Type::boolean(),
+                        'resolve' => function($source, $arguments, $context, $resolveInfo) {
+                            return $source->markedAsNew;
+                        }
+                    ];
+                    $event->fields['markedNewTillDate'] = [
+                        'name' => 'markedNewTillDate',
+                        'type' => DateTime::getType(),
+                        'resolve' => function($source, $arguments, $context, $resolveInfo) {
+                            return $source->markedNewTillDate;
+                        }
+                    ];
+                }
+            }
+        );
+    }
+
+    private function registerGqlArguments()
+    {
+        Event::on(
+            Gql::class,
+            Gql::EVENT_REGISTER_GQL_QUERIES,
+            function(RegisterGqlQueriesEvent $event) {
+                $event->queries['entries']['args']['markedAsNew'] = [
+                    'name' => 'markedAsNew',
+                    'type' => Type::boolean(),
+                    'description' => 'Narrows the query results to only entries that are marked as new.'
+                ];
+                $event->queries['products']['args']['markedAsNew'] = [
+                    'name' => 'markedAsNew',
+                    'type' => Type::boolean(),
+                    'description' => 'Narrows the query results to only products that are marked as new.'
+                ];
+            }
         );
     }
 

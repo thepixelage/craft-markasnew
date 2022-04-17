@@ -36,6 +36,7 @@ use thepixelage\markasnew\behaviors\EntryQueryBehavior;
 use thepixelage\markasnew\behaviors\ProductBehavior;
 use thepixelage\markasnew\behaviors\ProductQueryBehavior;
 use thepixelage\markasnew\conditions\MarkedAsNewConditionRule;
+use thepixelage\markasnew\models\Settings;
 use thepixelage\markasnew\records\MarkAsNew_Elements as MarkAsNew_ElementsRecord;
 use yii\base\Event;
 
@@ -69,14 +70,42 @@ class Plugin extends \craft\base\Plugin
         $this->registerTableAttributes();
     }
 
+    protected function createSettingsModel(): ?Model
+    {
+        return new Settings();
+    }
+
     private function registerMetaFieldsHtml()
     {
+        /** @var Settings $settings */
+        $settings = $this->getSettings();
+
         Event::on(
             Entry::class,
             Element::EVENT_DEFINE_META_FIELDS_HTML,
-            function(DefineHtmlEvent $event) {
+            function(DefineHtmlEvent $event) use ($settings) {
                 /** @var Entry $entry */
                 $entry = $event->sender;
+
+                if ($settings->includeTypes) {
+                    $included = array_filter($settings->includeTypes, function ($type) use ($entry) {
+                        return $type == sprintf('entries.%s', $entry->type->handle);
+                    });
+
+                    if (!$included) {
+                        return;
+                    }
+                }
+
+                if ($settings->excludeTypes) {
+                    $excluded = array_filter($settings->excludeTypes, function ($type) use ($entry) {
+                        return $type == sprintf('entries.%s', $entry->type->handle);
+                    });
+
+                    if ($excluded) {
+                        return;
+                    }
+                }
 
                 $record = MarkAsNew_ElementsRecord::find()
                     ->where(['id' => $entry->id])
@@ -95,7 +124,27 @@ class Plugin extends \craft\base\Plugin
             }
         );
 
-        Craft::$app->view->hook('cp.commerce.product.edit.details', function(array &$context) {
+        Craft::$app->view->hook('cp.commerce.product.edit.details', function(array &$context) use ($settings) {
+            if ($settings->includeTypes) {
+                $included = array_filter($settings->includeTypes, function ($type) use ($context) {
+                    return $type == sprintf('products.%s', $context['productTypeHandle']);
+                });
+
+                if (!$included) {
+                    return null;
+                }
+            }
+
+            if ($settings->excludeTypes) {
+                $excluded = array_filter($settings->excludeTypes, function ($type) use ($context) {
+                    return $type == sprintf('products.%s', $context['productTypeHandle']);
+                });
+
+                if ($excluded) {
+                    return null;
+                }
+            }
+
             $record = MarkAsNew_ElementsRecord::find()
                 ->where(['id' => $context['productId']])
                 ->one();
@@ -173,7 +222,7 @@ class Plugin extends \craft\base\Plugin
 
                 $markedNewTillDateParams = Craft::$app->request->getParam('markedNewTillDate');
 
-                if (!$markedNewTillDateParams || !$markedNewTillDateParams['date']) {
+                if (!$markedNewTillDateParams || !isset($markedNewTillDateParams['date']) || !$markedNewTillDateParams['date']) {
                     $record?->delete();
                     return;
                 }

@@ -86,7 +86,7 @@ And to query a list of products that are marked as new:
 
 ```graphql
 {
-    products(markedAsNew: false) {
+    products(markedAsNew: true) {
         title
         markedAsNew
         markedNewTillDate

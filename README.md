@@ -96,7 +96,7 @@ And to query a list of products that are marked as new:
 
 ### Condition Rule Type
 
-A custom condition rule type "Marked As New" is added to the `EntryCondition` so it can be used to filter the entry listing in control panel.
+A custom condition rule type "Marked As New" is added to the `ElementCondition` so it can be used to filter the entry listing and product listing in control panel.
 
 ---
 

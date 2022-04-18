@@ -7,6 +7,7 @@ use craft\base\conditions\BaseLightswitchConditionRule;
 use craft\base\ElementInterface;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
+use yii\base\UnknownMethodException;
 
 class MarkedAsNewConditionRule extends BaseLightswitchConditionRule implements ElementConditionRuleInterface
 {
@@ -23,7 +24,10 @@ class MarkedAsNewConditionRule extends BaseLightswitchConditionRule implements E
 
     public function modifyQuery(ElementQueryInterface $query): void
     {
-        $query->markedAsNew($this->value);
+        try {
+            $query->markedAsNew($this->value);
+        } catch (UnknownMethodException) {
+        }
     }
 
     public function matchElement(ElementInterface $element): bool

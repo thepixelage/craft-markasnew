@@ -10,7 +10,6 @@ use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\Product;
 use craft\db\Query;
 use craft\elements\conditions\ElementCondition;
-use craft\elements\conditions\entries\EntryCondition;
 use craft\elements\db\ElementQuery;
 use craft\elements\db\EntryQuery;
 use craft\elements\Entry;
@@ -51,7 +50,7 @@ class Plugin extends \craft\base\Plugin
 
     public string $schemaVersion = '1.0.0';
     public bool $hasCpSettings = true;
-    public bool $hasCpSection = true;
+    public bool $hasCpSection = false;
 
     public function init()
     {
@@ -320,11 +319,6 @@ class Plugin extends \craft\base\Plugin
             ElementCondition::class,
             BaseCondition::EVENT_REGISTER_CONDITION_RULE_TYPES,
             function (RegisterConditionRuleTypesEvent $event) {
-                $condition = $event->sender;
-                if (!in_array(get_class($condition), [EntryCondition::class])) {
-                    return;
-                }
-
                 $ruleTypes = $event->conditionRuleTypes;
                 $ruleTypes[] = MarkedAsNewConditionRule::class;
                 $event->conditionRuleTypes = $ruleTypes;

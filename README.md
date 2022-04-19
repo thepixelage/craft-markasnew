@@ -11,7 +11,7 @@ Currently, only these native elements are supported:
 
 ### New Date/Time Field Edit Page in Control Panel
 
-A **"Marked New Till"** date/time field is added to the right sidebar of entry editing and product editing pages in the control panel. If set, it specifies that the element is considered as new until the selected date/time.
+A **"Mark New Until"** date/time field is added to the right sidebar of entry editing and product editing pages in the control panel. If set, it specifies that the element is considered as new until the selected date/time.
 
 For entries, the field is displayed after the Expiry Date field. For products, the field is displayed only after the product is saved, and is displayed after the Date Updated meta field.
 
@@ -50,7 +50,7 @@ Entries and products get two new attributes that can be accessed to find out if 
 | Attribute           | Data type  |
 |---------------------|------------|
 | `markedAsNew`       | `bool`     |
- | `markedNewTillDate` | `DateTime` |
+ | `markNewUntilDate` | `DateTime` |
 
 There are also two element index table attributes corresponding to these two element attributes that can be used to display their columns in the entry listing or product listing in the control panel.
 
@@ -77,7 +77,7 @@ For example, to query a list of entries that are marked as new:
     entries(markedAsNew: true) {
         title
         markedAsNew
-        markedNewTillDate
+        markNewUntilDate
     }
 }
 ```
@@ -89,7 +89,7 @@ And to query a list of products that are marked as new:
     products(markedAsNew: true) {
         title
         markedAsNew
-        markedNewTillDate
+        markNewUntilDate
     }
 }
 ```

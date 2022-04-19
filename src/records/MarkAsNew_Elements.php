@@ -12,7 +12,7 @@ use yii\db\ActiveQueryInterface;
  * Class MarkAsNew_Elements record.
  *
  * @property int $elementId Element ID
- * @property DateTime $markedNewTillDate Marked As New Till date
+ * @property DateTime $markNewUntilDate Marked As New Till date
  */
 class MarkAsNew_Elements extends ActiveRecord
 {

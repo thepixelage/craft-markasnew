@@ -31,6 +31,7 @@
         "handle": "markasnew",
         "developer": "ThePixelAge",
         "developerUrl": "https://www.thepixelage.com",
+        "documentationUrl": "https://github.com/thepixelage/craft-markasnew/tree/develop-v3",
         "class": "thepixelage\\markasnew\\Plugin"
     }
 }

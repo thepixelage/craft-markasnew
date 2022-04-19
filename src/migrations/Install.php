@@ -27,7 +27,7 @@ class Install extends Migration
     {
         $this->createTable(Table::MARKASNEW_ELEMENTS, [
             'id' => $this->integer()->notNull(),
-            'markedNewTillDate' => $this->dateTime(),
+            'markNewUntilDate' => $this->dateTime(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -37,7 +37,7 @@ class Install extends Migration
 
     private function createIndexes()
     {
-        $this->createIndex(null, Table::MARKASNEW_ELEMENTS, ['markedNewTillDate'], false);
+        $this->createIndex(null, Table::MARKASNEW_ELEMENTS, ['markNewUntilDate'], false);
     }
 
     private function addForeignKeys()

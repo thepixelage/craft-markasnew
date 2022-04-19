@@ -95,12 +95,12 @@ class Plugin extends \craft\base\Plugin
                 ->where(['id' => $context['entryId']])
                 ->one();
 
-            $markNewTillDate = $record ? DateTimeHelper::toDateTime($record->markedNewTillDate) : null;
+            $markNewTillDate = $record ? DateTimeHelper::toDateTime($record->markNewUntilDate) : null;
 
             return Cp::dateTimeFieldHtml([
-                'label' => Craft::t('app', 'Marked New Till'),
-                'id' => 'markedNewTillDate',
-                'name' => 'markedNewTillDate',
+                'label' => Craft::t('app', 'Mark New Until'),
+                'id' => 'markNewUntilDate',
+                'name' => 'markNewUntilDate',
                 'value' => $markNewTillDate,
                 'errors' => null,
                 'disabled' => false,
@@ -132,12 +132,12 @@ class Plugin extends \craft\base\Plugin
                 ->where(['id' => $context['productId']])
                 ->one();
 
-            $markNewTillDate = $record ? DateTimeHelper::toDateTime($record->markedNewTillDate) : null;
+            $markNewTillDate = $record ? DateTimeHelper::toDateTime($record->markNewUntilDate) : null;
 
             $field = Cp::dateTimeFieldHtml([
-                'label' => Craft::t('app', 'Marked New Till'),
-                'id' => 'markedNewTillDate',
-                'name' => 'markedNewTillDate',
+                'label' => Craft::t('app', 'Mark New Until'),
+                'id' => 'markNewUntilDate',
+                'name' => 'markNewUntilDate',
                 'value' => $markNewTillDate,
                 'errors' => null,
                 'disabled' => false,
@@ -203,9 +203,9 @@ class Plugin extends \craft\base\Plugin
                     ->where(['id' => $element->id])
                     ->one();
 
-                $markedNewTillDateParams = Craft::$app->request->getParam('markedNewTillDate');
+                $markNewUntilDateParams = Craft::$app->request->getParam('markNewUntilDate');
 
-                if (!$markedNewTillDateParams || !isset($markedNewTillDateParams['date']) || !$markedNewTillDateParams['date']) {
+                if (!$markNewUntilDateParams || !isset($markNewUntilDateParams['date']) || !$markNewUntilDateParams['date']) {
                     if ($record) {
                         $record->delete();
                     }
@@ -218,7 +218,7 @@ class Plugin extends \craft\base\Plugin
                     $record->id = $element->id;
                 }
 
-                $record->markedNewTillDate = DateTimeHelper::toDateTime($markedNewTillDateParams);
+                $record->markNewUntilDate = DateTimeHelper::toDateTime($markNewUntilDateParams);
                 $record->save(false);
             }
         );
@@ -268,11 +268,11 @@ class Plugin extends \craft\base\Plugin
                             return $source->markedAsNew;
                         }
                     ];
-                    $event->fields['markedNewTillDate'] = [
-                        'name' => 'markedNewTillDate',
+                    $event->fields['markNewUntilDate'] = [
+                        'name' => 'markNewUntilDate',
                         'type' => DateTime::getType(),
                         'resolve' => function($source, $arguments, $context, $resolveInfo) {
-                            return $source->markedNewTillDate;
+                            return $source->markNewUntilDate;
                         }
                     ];
                 }
@@ -334,17 +334,17 @@ class Plugin extends \craft\base\Plugin
 
         $query->leftJoin(['markasnew_elements' => '{{%markasnew_elements}}'], "[[markasnew_elements.id]] = [[elements.id]]");
         if (count($query->select) > 1 || join('', $query->select) != 'COUNT(*)') {
-            $query->addSelect(['markasnew_elements.markedNewTillDate']);
+            $query->addSelect(['markasnew_elements.markNewUntilDate']);
         }
 
         if (isset($query->markedAsNew)) {
             if ($query->markedAsNew === true) {
-                $query->subQuery->andWhere(['>=', 'markasnew_elements.markedNewTillDate', DateTimeHelper::currentUTCDateTime()->format('Y-m-d H:i:s')]);
+                $query->subQuery->andWhere(['>=', 'markasnew_elements.markNewUntilDate', DateTimeHelper::currentUTCDateTime()->format('Y-m-d H:i:s')]);
             } else {
                 $query->subQuery->andWhere([
                     'or',
-                    ['markasnew_elements.markedNewTillDate' => null],
-                    ['<', 'markasnew_elements.markedNewTillDate', DateTimeHelper::currentUTCDateTime()->format('Y-m-d H:i:s')]
+                    ['markasnew_elements.markNewUntilDate' => null],
+                    ['<', 'markasnew_elements.markNewUntilDate', DateTimeHelper::currentUTCDateTime()->format('Y-m-d H:i:s')]
                 ]);
             }
         }
@@ -352,8 +352,8 @@ class Plugin extends \craft\base\Plugin
 
     public static function handleElementQueryAfterPopulateElement(PopulateElementEvent $event)
     {
-        $event->element->markedNewTillDate = DateTimeHelper::toDateTime($event->element->markedNewTillDate);
-        $event->element->markedAsNew = $event->element->markedNewTillDate && $event->element->markedNewTillDate >= DateTimeHelper::currentUTCDateTime();
+        $event->element->markNewUntilDate = DateTimeHelper::toDateTime($event->element->markNewUntilDate);
+        $event->element->markedAsNew = $event->element->markNewUntilDate && $event->element->markNewUntilDate >= DateTimeHelper::currentUTCDateTime();
     }
 
     public static function handleRegisterTableAttributes(RegisterElementTableAttributesEvent $event)
@@ -361,8 +361,8 @@ class Plugin extends \craft\base\Plugin
         $event->tableAttributes['markedAsNew'] = [
             'label' => 'Marked As New',
         ];
-        $event->tableAttributes['markedNewTillDate'] = [
-            'label' => 'Marked New Till Date',
+        $event->tableAttributes['markNewUntilDate'] = [
+            'label' => 'Mark New Until',
         ];
     }
 
@@ -380,8 +380,8 @@ class Plugin extends \craft\base\Plugin
             ]);
         }
 
-        if ($event->attribute == 'markedNewTillDate') {
-            $event->html = $entry->markedNewTillDate ? Craft::$app->formatter->asDatetime($entry->markedNewTillDate, 'short') : null;
+        if ($event->attribute == 'markNewUntilDate') {
+            $event->html = $entry->markNewUntilDate ? Craft::$app->formatter->asDatetime($entry->markNewUntilDate, 'short') : null;
         }
     }
 }

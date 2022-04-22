@@ -1,8 +1,8 @@
 {
     "name": "thepixelage/craft-markasnew",
-    "description": "Mark As New is a Craft CMS plugin for marking content as new",
+    "description": "Mark As New is a Craft CMS plugin for marking content and products as new",
     "type": "craft-plugin",
-    "version": "3.0.0",
+    "version": "3.0.1",
     "keywords": [
         "craft",
         "cms",
@@ -10,7 +10,7 @@
         "craft-plugin",
         "craft-markasnew"
     ],
-    "license": "proprietary",
+    "license": "MIT",
     "authors": [
         {
             "name": "ThePixelAge",

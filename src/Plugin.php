@@ -7,6 +7,7 @@ use craft\base\Element;
 use craft\base\Model;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\Product;
+use craft\commerce\helpers\Gql as CommerceGqlHelper;
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\elements\db\EntryQuery;
@@ -22,6 +23,7 @@ use craft\gql\TypeManager;
 use craft\gql\types\DateTime;
 use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Gql as GqlHelper;
 use craft\helpers\Html;
 use craft\services\Gql;
 use GraphQL\Type\Definition\Type;
@@ -286,16 +288,21 @@ class Plugin extends \craft\base\Plugin
             Gql::class,
             Gql::EVENT_REGISTER_GQL_QUERIES,
             function(RegisterGqlQueriesEvent $event) {
-                $event->queries['entries']['args']['markedAsNew'] = [
-                    'name' => 'markedAsNew',
-                    'type' => Type::boolean(),
-                    'description' => 'Narrows the query results to only entries that are marked as new.'
-                ];
-                $event->queries['products']['args']['markedAsNew'] = [
-                    'name' => 'markedAsNew',
-                    'type' => Type::boolean(),
-                    'description' => 'Narrows the query results to only products that are marked as new.'
-                ];
+                if (GqlHelper::canQueryEntries()) {
+                    $event->queries['entries']['args']['markedAsNew'] = [
+                        'name' => 'markedAsNew',
+                        'type' => Type::boolean(),
+                        'description' => 'Narrows the query results to only entries that are marked as new.'
+                    ];
+                }
+
+                if (CommerceGqlHelper::canQueryProducts()) {
+                    $event->queries['products']['args']['markedAsNew'] = [
+                        'name' => 'markedAsNew',
+                        'type' => Type::boolean(),
+                        'description' => 'Narrows the query results to only products that are marked as new.'
+                    ];
+                }
             }
         );
     }

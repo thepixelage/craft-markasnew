@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUndefinedClassInspection */
 
 namespace thepixelage\markasnew;
 
@@ -30,6 +30,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Gql as GqlHelper;
 use craft\helpers\Html;
 use craft\services\Gql;
+use craft\web\Request;
 use Exception;
 use GraphQL\Type\Definition\Type;
 use thepixelage\markasnew\behaviors\EntryBehavior;
@@ -214,6 +215,10 @@ class Plugin extends \craft\base\Plugin
             Element::class,
             Element::EVENT_AFTER_SAVE,
             function(ModelEvent $event) {
+                if (!(Craft::$app->request instanceof Request)) {
+                    return;
+                }
+
                 /** @var Element $element */
                 $element = $event->sender;
 
@@ -309,12 +314,14 @@ class Plugin extends \craft\base\Plugin
                     ];
                 }
 
-                if (CommerceGqlhelper::canQueryProducts()) {
-                    $event->queries['products']['args']['markedAsNew'] = [
-                        'name' => 'markedAsNew',
-                        'type' => Type::boolean(),
-                        'description' => 'Narrows the query results to only products that are marked as new.'
-                    ];
+                if (Craft::$app->plugins->isPluginEnabled('commerce')) {
+                    if (CommerceGqlhelper::canQueryProducts()) {
+                        $event->queries['products']['args']['markedAsNew'] = [
+                            'name' => 'markedAsNew',
+                            'type' => Type::boolean(),
+                            'description' => 'Narrows the query results to only products that are marked as new.'
+                        ];
+                    }
                 }
             }
         );

@@ -2,7 +2,7 @@
     "name": "thepixelage/craft-markasnew",
     "description": "Mark As New is a Craft CMS plugin for marking content and products as new",
     "type": "craft-plugin",
-    "version": "3.0.4",
+    "version": "3.0.5",
     "keywords": [
         "craft",
         "cms",

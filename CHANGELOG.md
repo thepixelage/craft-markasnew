@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## 3.0.5 - 2022-05-11
+### Fixed
+- Fix bug that occurs when generating SEOmatic sitemaps
+
 ## 3.0.4 - 2022-05-11
 ### Fixed
 - Fix bug where `markasnew_elements` table joined multiple times

@@ -372,7 +372,7 @@ class Plugin extends \craft\base\Plugin
         /** @var EntryQuery $query */
         $query = $event->sender;
 
-        if (!$query->join || !$query->isJoined('{{%markasnew_elements}}')) {
+        if (!$query->join) {
             $query->leftJoin(['markasnew_elements' => '{{%markasnew_elements}}'], "[[markasnew_elements.id]] = [[elements.id]]");
             if (count($query->select) > 1 || join('', $query->select) != 'COUNT(*)') {
                 $query->addSelect(['markasnew_elements.markNewUntilDate']);

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## 4.0.3 - 2022-05-11
+### Fixed
+- Fix bug where `markasnew_elements` table joined multiple times
+
 ## 4.0.2 - 2022-05-06
 ### Fixed
 - Check Commerce plugin enabled before registering GQL query for products

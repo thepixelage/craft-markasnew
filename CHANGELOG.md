@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## 4.0.5 - 2024-11-27
+### Fixed
+- Fixed bug where query returns extra column that conflicts with Commerce version 4.3.3 and above
+
 ## 4.0.4 - 2022-05-11
 ### Fixed
 - Fix bug that occurs when generating SEOmatic sitemaps

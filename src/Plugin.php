@@ -372,14 +372,14 @@ class Plugin extends \craft\base\Plugin
         /** @var EntryQuery $query */
         $query = $event->sender;
 
-        if (!$query->join) {
-            $query->leftJoin(['markasnew_elements' => '{{%markasnew_elements}}'], "[[markasnew_elements.id]] = [[elements.id]]");
-            if (count($query->select) > 1 || join('', $query->select) != 'COUNT(*)') {
-                $query->addSelect(['markasnew_elements.markNewUntilDate']);
-            }
-        }
-
         if (isset($query->markedAsNew)) {
+            if (!$query->join) {
+                $query->leftJoin(['markasnew_elements' => '{{%markasnew_elements}}'], "[[markasnew_elements.id]] = [[elements.id]]");
+                if (count($query->select) > 1 || join('', $query->select) != 'COUNT(*)') {
+                    $query->addSelect(['markasnew_elements.markNewUntilDate']);
+                }
+            }
+
             if ($query->markedAsNew === true) {
                 $query->subQuery->andWhere(['>=', 'markasnew_elements.markNewUntilDate', DateTimeHelper::currentUTCDateTime()->format('Y-m-d H:i:s')]);
             } else {
@@ -397,8 +397,16 @@ class Plugin extends \craft\base\Plugin
      */
     public static function handleElementQueryAfterPopulateElement(PopulateElementEvent $event)
     {
-        $event->element->markNewUntilDate = DateTimeHelper::toDateTime($event->element->markNewUntilDate);
-        $event->element->markedAsNew = $event->element->markNewUntilDate && $event->element->markNewUntilDate >= DateTimeHelper::currentUTCDateTime();
+        $row = (new Query())
+            ->select(['markasnew_elements.markNewUntilDate'])
+            ->from('{{%markasnew_elements}}')
+            ->where(['id' => $event->element->id])
+            ->one();
+
+        if ($row) {
+            $event->element->markNewUntilDate = DateTimeHelper::toDateTime($row['markNewUntilDate']);
+            $event->element->markedAsNew = $event->element->markNewUntilDate && $event->element->markNewUntilDate >= DateTimeHelper::currentUTCDateTime();
+        }
     }
 
     public static function handleRegisterTableAttributes(RegisterElementTableAttributesEvent $event)
